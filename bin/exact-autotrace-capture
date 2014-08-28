@@ -1,0 +1,8 @@
+#!/bin/bash
+tempin="$HOME/autotrace.in.$$"
+tempout="$HOME/autotrace.out.$$"
+
+infile="$(eval 'echo $'$#)"
+cp "$infile" "$tempin"
+/usr/bin/autotrace "$@" >"$tempout"
+cat "$tempout"
