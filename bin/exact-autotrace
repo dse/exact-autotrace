@@ -30,7 +30,6 @@ for (my $y = 0; $y < $h; $y += 1) {
     }
 }
 
-my @pxtracenumber;
 my $min_mag = min(values(%mag));
 my $max_mag = max(values(%mag));
 my $avg_mag = ($min_mag + $max_mag) / 2;
@@ -41,28 +40,6 @@ for (my $y = 0; $y < $h; $y += 1) {
 	    $px[$x][$y] = 1;
 	} else {
 	    $px[$x][$y] = 0;
-	}
-	$pxtracenumber[$x][$y] = 0;
-    }
-}
-
-my $max_tracenumber = 0;
-my @tracenumber_start;
-for (my $y = 0; $y < $h; $y += 1) {
-    for (my $x = 0; $x < $w; $x += 1) {
-	if ($pxmag[$x][$y] && !$pxtracenumber[$x][$y]) {
-	    if (set_tracenumber($x, $y, $max_tracenumber + 1)) {
-		$max_tracenumber += 1;
-		$tracenumber_start[$max_tracenumber] = [$x, $y];
-	    }
-	}
-    }
-}
-
-if (0) {
-    for (my $y = 0; $y < $h; $y += 1) {
-	for (my $x = 0; $x < $w; $x += 1) {
-	    printf("%03d ", $pxtracenumber[$x][$y]);
 	}
     }
 }
@@ -95,11 +72,16 @@ print(<<'END');
 *u
 END
 
-for (my $tracenumber = 1; $tracenumber <= $max_tracenumber;
-     $tracenumber += 1) {
-    my $xy = $tracenumber_start[$tracenumber];
-    my ($x, $y) = @$xy;
-    trace($tracenumber, $x, $y);
+for (my $y = 0; $y < $h; $y += 1) {
+    for (my $x = 0; $x < $w; $x += 1) {
+        if ($px[$x][$y]) {
+            printf("%d %d m\n", $x, $y);
+            printf("%d %d l\n", $x, $y + 1);
+            printf("%d %d l\n", $x + 1, $y + 1);
+            printf("%d %d l\n", $x + 1, $y);
+            printf("%d %d l\n", $x, $y);
+        }
+    }
 }
 
 print(<<'END');
@@ -107,115 +89,3 @@ print(<<'END');
 %%Trailer
 %%EOF
 END
-
-sub set_tracenumber {
-    my ($x, $y, $tracenumber) = @_;
-    return if $x < 0 || $x >= $w || $y < 0 || $y >= $h;
-    return if !$px[$x][$y];
-    return if $pxtracenumber[$x][$y] == $tracenumber;
-    $pxtracenumber[$x][$y] = $tracenumber;
-    set_tracenumber($x - 1, $y, $tracenumber);
-    set_tracenumber($x + 1, $y, $tracenumber);
-    set_tracenumber($x, $y - 1, $tracenumber);
-    set_tracenumber($x, $y + 1, $tracenumber);
-    return 1;
-}
-
-use constant DOWN  => 0;
-use constant RIGHT => 1;
-use constant UP    => 2;
-use constant LEFT  => 3;
-
-sub px {
-    my ($x, $y) = @_;
-    return 0 if $x < 0 || $x >= $w || $y < 0 || $y >= $h;
-    return $pxtracenumber[$x][$y];
-}
-
-sub trace {
-    my ($tracenumber, $x, $y) = @_;
-    my @coords;
-    while ($x && $x >= 0 && px($x - 1, $y) == $tracenumber) {
-	$x -= 1;
-    }
-
-    my ($x_orig, $y_orig) = ($x, $y);
-
-    # printf("%d %d m\n", $x, $y + 1);
-    printf("%d %d m\n", $x, $y);
-    my $dir = DOWN;
-
-    my $move_down = sub {
-	$y -= 1;
-	$dir = DOWN;
-    };
-    my $move_left = sub {
-	$x -= 1;
-	$dir = LEFT;
-    };
-    my $move_up = sub {
-	$y += 1;
-	$dir = UP;
-    };
-    my $move_right = sub {
-	$x += 1;
-	$dir = RIGHT;
-    };
-
-    my $prev_dir = $dir;
-    do {
-	if ($dir == DOWN) {
-	    if (px($x - 1, $y - 1) == $tracenumber) {
-		&$move_left;
-	    }
-	    elsif (px($x, $y - 1) == $tracenumber) {
-		&$move_down;
-	    }
-	    else {
-		&$move_right;
-	    }
-	}
-	elsif ($dir == LEFT) {
-	    if (px($x - 1, $y) == $tracenumber) {
-		&$move_up;
-	    }
-	    elsif (px($x - 1, $y - 1) == $tracenumber) {
-		&$move_left;
-	    }
-	    else {
-		&$move_down;
-	    }
-	}
-	elsif ($dir == UP) {
-	    if (px($x, $y) == $tracenumber) {
-		&$move_right;
-	    }
-	    elsif (px($x - 1, $y) == $tracenumber) {
-		&$move_up;
-	    }
-	    else {
-		&$move_left;
-	    }
-	}
-	elsif ($dir == RIGHT) {
-	    if (px($x, $y - 1) == $tracenumber) {
-		&$move_down;
-	    }
-	    elsif (px($x, $y) == $tracenumber) {
-		&$move_right;
-	    }
-	    else {
-		&$move_up;
-	    }
-	}
-	else {
-	    last;		# heh
-	}
-	if (!($x == $x_orig && $y == $y_orig)) {
-	    printf("%d %d l\n", $x, $y);
-	}
-	$prev_dir = $dir;
-    } until ($x == $x_orig && $y == $y_orig);
-    print("f\n");
-}
-
