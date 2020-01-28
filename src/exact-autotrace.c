@@ -82,9 +82,10 @@ void exact_autotrace_output_end() {
     puts("%%EOF");
 }
 
-void exact_autotrace(char *filename) {
-    exact_autotrace_init(filename);
-    int l, lmax, lmin, lavg, y, x;
+int lavg;
+
+void exact_autotrace_collect() {
+    int l, lmax, lmin, y, x;
     for (y = 0; y < exact_autotrace_height; y += 1) {
         for (x = 0; x < exact_autotrace_width; x += 1) {
             l = exact_autotrace_pixel_value(x, y);
@@ -97,7 +98,11 @@ void exact_autotrace(char *filename) {
         }
     }
     lavg = (lmin + lmax) / 2;
+}
+
+void exact_autotrace_run_brute_force() {
     exact_autotrace_output_start();
+    int y, x, l;
     for (y = 0; y < exact_autotrace_height; y += 1) {
         for (x = 0; x < exact_autotrace_width; x += 1) {
             l = exact_autotrace_pixel_value(x, y);
@@ -107,5 +112,11 @@ void exact_autotrace(char *filename) {
         }
     }
     exact_autotrace_output_end();
+}
+
+void exact_autotrace(char *filename) {
+    exact_autotrace_init(filename);
+    exact_autotrace_collect();
+    exact_autotrace_run_brute_force();
     exact_autotrace_cleanup();
 }
