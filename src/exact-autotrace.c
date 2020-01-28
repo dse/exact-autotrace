@@ -271,8 +271,6 @@ void exact_autotrace_qdbmp(char *filename) {
 #endif
 
 #define BM_BPP          4 /* Bytes per Pixel */
-#define BM_ROW_SIZE(B)  (B->w * BM_BPP)
-
 
 #ifdef BMP_H
 void exact_autotrace_bitmap(char *filename) {
