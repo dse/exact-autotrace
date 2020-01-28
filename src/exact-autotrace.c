@@ -10,7 +10,8 @@
 #include <stdlib.h>
 
 /* #include <wand/magick_wand.h> */
-#include "../libbmp/libbmp.h"
+/* #include "../libbmp/libbmp.h" */
+#include "../qdbmp/qdbmp.h"
 
 /* prototypes */
 #ifdef MAGICKWAND_MAJOR_VERSION
@@ -18,6 +19,9 @@ void exact_autotrace_magick(char *);
 #endif
 #ifdef BMP_MAGIC
 void exact_autotrace_libbmp(char *);
+#endif
+#ifdef QDBMP_VERSION_MAJOR
+void exact_autotrace_qdbmp(char *);
 #endif
 void exact_autotrace_start();
 void exact_autotrace_output_pixel(int x, int y);
@@ -31,13 +35,15 @@ int main(int argc, char **argv) {
     }
     char *filename = argv[argc - 1];
 
-    #ifdef MAGICKWAND_MAJOR_VERSION
+#ifdef MAGICKWAND_MAJOR_VERSION
     exact_autotrace_magick(filename);
-    #endif
-
-    #ifdef BMP_MAGIC
+#endif
+#ifdef BMP_MAGIC
     exact_autotrace_libbmp(filename);
-    #endif
+#endif
+#ifdef QDBMP_VERSION_MAJOR
+    exact_autotrace_qdbmp(filename);
+#endif
 }
 
 int exact_autotrace_width = 0;
@@ -198,6 +204,56 @@ void exact_autotrace_libbmp(char *filename) {
             g = img.img_pixels[y][x].green;
             b = img.img_pixels[y][x].blue;
             l = ((r * 2126 + g * 7152 + b * 722) + 5000) / 10000;
+            if (l < lavg) {
+                exact_autotrace_output_pixel(x, y);
+            }
+        }
+    }
+    exact_autotrace_end();
+}
+#endif
+
+#ifdef QDBMP_VERSION_MAJOR
+void exact_autotrace_qdbmp(char *filename) {
+    BMP* bmp;
+    fprintf(stderr, "A\n");
+    bmp = BMP_ReadFile(filename);
+    fprintf(stderr, "B\n");
+    if (BMP_GetError() != BMP_OK) {
+        fprintf(stderr,  "BMP_ReadFile: An error has occurred: %s (code %d)\n", BMP_GetErrorDescription(), BMP_GetError());
+        exit(1);
+    }
+    exact_autotrace_width  = (int)BMP_GetWidth(bmp);
+    if (BMP_GetError() != BMP_OK) {
+        fprintf(stderr,  "BMP_GetWidth: An error has occurred: %s (code %d)\n", BMP_GetErrorDescription(), BMP_GetError());
+        exit(1);
+    }
+    exact_autotrace_height = (int)BMP_GetHeight(bmp);
+    if (BMP_GetError() != BMP_OK) {
+        fprintf(stderr,  "BMP_GetHeight: An error has occurred: %s (code %d)\n", BMP_GetErrorDescription(), BMP_GetError());
+        exit(1);
+    }
+    fprintf(stderr, "C\n");
+    unsigned char r, g, b;
+    int l, lmax, lmin, lavg, y, x;
+    for (y = 0; y < exact_autotrace_height; y += 1) {
+        for (x = 0; x < exact_autotrace_width; x += 1) {
+            BMP_GetPixelRGB(bmp, x, y, &r, &g, &b);
+            l = ((2126 * r + 7152 * g + 722 * b) + 5000) / 10000;
+            if (x == 0 && y == 0) {
+                lmin = lmax = l;
+            } else {
+                if (lmin > l) { lmin = l; }
+                if (lmax < l) { lmax = l; }
+            }
+        }
+    }
+    lavg = (lmin + lmax) / 2;
+    exact_autotrace_start();
+    for (y = 0; y < exact_autotrace_height; y += 1) {
+        for (x = 0; x < exact_autotrace_width; x += 1) {
+            BMP_GetPixelRGB(bmp, x, y, &r, &g, &b);
+            l = ((2126 * r + 7152 * g + 722 * b) + 5000) / 10000;
             if (l < lavg) {
                 exact_autotrace_output_pixel(x, y);
             }
