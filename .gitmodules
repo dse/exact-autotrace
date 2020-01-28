@@ -4,3 +4,6 @@
 [submodule "qdbmp"]
 	path = qdbmp
 	url = git@github.com:madwyn/qdbmp.git
+[submodule "bitmap"]
+	path = bitmap
+	url = git@github.com:wernsey/bitmap.git
