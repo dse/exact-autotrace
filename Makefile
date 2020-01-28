@@ -1,7 +1,5 @@
-SRC = src/exact-autotrace.c
+SRC = src/exact-autotrace.c src/exact-autotrace-bitmap.c bitmap/bmp.c
 BIN = bin/exact-autotrace-c
 
 $(BIN): $(SRC)
-#	cc -o $(BIN) $(SRC) `pkg-config --cflags --libs Wand`
-#	cc -o $(BIN) $(SRC) libbmp/libbmp.c
-	cc -o $(BIN) $(SRC) bitmap/bmp.c
+	cc -o $(BIN) $(SRC)
