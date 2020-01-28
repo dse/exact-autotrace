@@ -11,7 +11,8 @@
 
 /* #include <wand/magick_wand.h> */
 /* #include "../libbmp/libbmp.h" */
-#include "../qdbmp/qdbmp.h"
+/* #include "../qdbmp/qdbmp.h" */
+#include "../bitmap/bmp.h"
 
 /* prototypes */
 #ifdef MAGICKWAND_MAJOR_VERSION
@@ -22,6 +23,9 @@ void exact_autotrace_libbmp(char *);
 #endif
 #ifdef QDBMP_VERSION_MAJOR
 void exact_autotrace_qdbmp(char *);
+#endif
+#ifdef BMP_H
+void exact_autotrace_bitmap(char *);
 #endif
 void exact_autotrace_start();
 void exact_autotrace_output_pixel(int x, int y);
@@ -43,6 +47,9 @@ int main(int argc, char **argv) {
 #endif
 #ifdef QDBMP_VERSION_MAJOR
     exact_autotrace_qdbmp(filename);
+#endif
+#ifdef BMP_H
+    exact_autotrace_bitmap(filename);
 #endif
 }
 
@@ -256,6 +263,59 @@ void exact_autotrace_qdbmp(char *filename) {
             l = ((2126 * r + 7152 * g + 722 * b) + 5000) / 10000;
             if (l < lavg) {
                 exact_autotrace_output_pixel(x, y);
+            }
+        }
+    }
+    exact_autotrace_end();
+}
+#endif
+
+#define BM_BPP          4 /* Bytes per Pixel */
+#define BM_ROW_SIZE(B)  (B->w * BM_BPP)
+
+
+#ifdef BMP_H
+void exact_autotrace_bitmap(char *filename) {
+    FILE *fp;
+    if (!(fp = fopen(filename, "rb"))) {
+        perror("fopen");
+        exit(1);
+    }
+    Bitmap *bmp;
+    if (!(bmp = bm_load_fp(fp))) {
+        fprintf(stderr, "bm_load_fp error\n");
+        exit(1);
+    }
+
+    exact_autotrace_width  = bmp->w;
+    exact_autotrace_height = bmp->h;
+
+    unsigned char r, g, b;
+    int l, lmax, lmin, lavg, y, x;
+    for (y = 0; y < exact_autotrace_height; y += 1) {
+        for (x = 0; x < exact_autotrace_width; x += 1) {
+            r = bmp->data[y * exact_autotrace_width * BM_BPP + x * BM_BPP + 2];
+            g = bmp->data[y * exact_autotrace_width * BM_BPP + x * BM_BPP + 1];
+            b = bmp->data[y * exact_autotrace_width * BM_BPP + x * BM_BPP];
+            l = ((2126 * r + 7152 * g + 722 * b) + 5000) / 10000;
+            if (x == 0 && y == 0) {
+                lmin = lmax = l;
+            } else {
+                if (lmin > l) { lmin = l; }
+                if (lmax < l) { lmax = l; }
+            }
+        }
+    }
+    lavg = (lmin + lmax) / 2;
+    exact_autotrace_start();
+    for (y = 0; y < exact_autotrace_height; y += 1) {
+        for (x = 0; x < exact_autotrace_width; x += 1) {
+            r = bmp->data[y * exact_autotrace_width * BM_BPP + x * BM_BPP + 2];
+            g = bmp->data[y * exact_autotrace_width * BM_BPP + x * BM_BPP + 1];
+            b = bmp->data[y * exact_autotrace_width * BM_BPP + x * BM_BPP];
+            l = ((2126 * r + 7152 * g + 722 * b) + 5000) / 10000;
+            if (l < lavg) {
+                exact_autotrace_output_pixel(x, exact_autotrace_height - 1 - y);
             }
         }
     }

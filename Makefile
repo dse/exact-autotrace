@@ -3,4 +3,5 @@ BIN = bin/exact-autotrace-c
 
 $(BIN): $(SRC)
 #	cc -o $(BIN) $(SRC) `pkg-config --cflags --libs Wand`
-	cc -o $(BIN) $(SRC) libbmp/libbmp.c
+#	cc -o $(BIN) $(SRC) libbmp/libbmp.c
+	cc -o $(BIN) $(SRC) bitmap/bmp.c
