@@ -1,8 +1,4 @@
-#!/bin/bash
-tempin="$HOME/autotrace.in.$$"
-tempout="$HOME/autotrace.out.$$"
-
-infile="$(eval 'echo $'$#)"
-cp "$infile" "$tempin"
-/usr/bin/autotrace "$@" >"$tempout"
-cat "$tempout"
+#!/usr/bin/env bash
+mkdir -p ~/.exact-autotrace
+echo "+ $@" >~/.exact-autotrace/stderr
+exec exact-autotrace "$@"

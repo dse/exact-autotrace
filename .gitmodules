@@ -1,0 +1,3 @@
+[submodule "libbmp"]
+	path = libbmp
+	url = git@github.com:marc-q/libbmp.git
