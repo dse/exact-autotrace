@@ -26,8 +26,7 @@ int main(int argc, char **argv) {
         exit(1);
     }
     char *filename = argv[argc - 1];
-    exact_autotrace_init(filename);
-
+    exact_autotrace(filename);
 }
 
 int exact_autotrace_width = 0;
@@ -103,7 +102,7 @@ void exact_autotrace(char *filename) {
         for (x = 0; x < exact_autotrace_width; x += 1) {
             l = exact_autotrace_pixel_value(x, y);
             if (l < lavg) {
-                exact_autotrace_output_pixel(x, y);
+                exact_autotrace_output_pixel(x, exact_autotrace_height - 1 - y);
             }
         }
     }
