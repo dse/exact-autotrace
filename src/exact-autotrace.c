@@ -114,9 +114,30 @@ void exact_autotrace_run_brute_force() {
     exact_autotrace_output_end();
 }
 
+void exact_autotrace_run_2() {
+    exact_autotrace_output_start();
+    int y, x, x2, l;
+    for (y = 0; y < exact_autotrace_height; y += 1) {
+        for (x = 0; x < exact_autotrace_width; x += 1) {
+            l = exact_autotrace_pixel_value(x, y);
+            if (l < lavg) {
+                for (x2 = x + 1;
+                     x2 < exact_autotrace_width &&
+                         (l = exact_autotrace_pixel_value(x2, y)) < lavg;
+                     x2 += 1) {
+                }
+                x2 -= 1;
+                exact_autotrace_output_horizontal_pixel_block(x, x2, exact_autotrace_height - 1 - y);
+                x = x2 + 1;
+            }
+        }
+    }
+    exact_autotrace_output_end();
+}
+
 void exact_autotrace(char *filename) {
     exact_autotrace_init(filename);
     exact_autotrace_collect();
-    exact_autotrace_run_brute_force();
+    exact_autotrace_run_2();
     exact_autotrace_cleanup();
 }
