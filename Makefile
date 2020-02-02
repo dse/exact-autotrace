@@ -1,5 +1,7 @@
-SRC = src/exact-autotrace.c src/exact-autotrace-bitmap.c bitmap/bmp.c
+SRC = src/exact-autotrace.c src/exact-autotrace-bitmap-diy.c bitmap/bmp.c
 BIN = bin/exact-autotrace-c
 
-$(BIN): $(SRC)
+CFLAGS = -c -Wall -Wextra
+
+$(BIN): $(SRC) Makefile
 	cc -o $(BIN) $(SRC)
