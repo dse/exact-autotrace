@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-extern int exact_autotrace_width;
-extern int exact_autotrace_height;
+extern int exact_autotrace_width = 0;
+extern int exact_autotrace_height = 0;
 
 struct bmpfile_magic {
     unsigned char magic[2];     /* "BM" */
@@ -135,4 +135,8 @@ void exact_autotrace_cleanup() {
         free(palette);
         palette = NULL;
     }
+    exact_autotrace_width = 0;
+    exact_autotrace_height = 0;
+    rowsize = 0;
+    datasize = 0;
 }
