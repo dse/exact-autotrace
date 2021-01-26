@@ -97,6 +97,13 @@ void exact_autotrace_collect() {
             }
         }
     }
+    if (lmin == 128 && lmax == 128) {
+        lmin = 128;
+        lmax = 255;
+    } else if (lmin == 255 && lmax == 255) {
+        lmin = 128;
+        lmax = 255;
+    }
     lavg = (lmin + lmax) / 2;
 }
 
