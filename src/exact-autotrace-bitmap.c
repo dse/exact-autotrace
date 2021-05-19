@@ -6,6 +6,7 @@
 #define BM_BPP 4
 extern int exact_autotrace_width;
 extern int exact_autotrace_height;
+extern int exact_autotrace_verbose;
 
 FILE *fp;
 Bitmap *bmp;

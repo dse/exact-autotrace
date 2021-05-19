@@ -4,6 +4,7 @@
 
 extern int exact_autotrace_width;
 extern int exact_autotrace_height;
+extern int exact_autotrace_verbose;
 
 struct bmpfile_magic {
     unsigned char magic[2];     /* "BM" */

@@ -20,13 +20,33 @@ void exact_autotrace_output_start();
 void exact_autotrace_output_pixel(int x, int y);
 void exact_autotrace_output_end();
 
+int exact_autotrace_verbose = 0;
+
 int main(int argc, char **argv) {
+    if (getenv("EXACT_AUTOTRACE_VERBOSE")) {
+        exact_autotrace_verbose = atoi(getenv("EXACT_AUTOTRACE_VERBOSE"));
+    }
+    argc -= 1;
+    argv += 1;
     if (argc < 1) {
         fprintf(stderr, "no filename argument\n");
         exit(1);
     }
+    if (exact_autotrace_verbose) {
+        fprintf(stderr, "exact-autotrace:");
+        for (int i = 0; i < argc; i += 1) {
+            fprintf(stderr, " %s", argv[i]);
+        }
+        fprintf(stderr, "\n");
+    }
     char *filename = argv[argc - 1];
+    if (exact_autotrace_verbose) {
+        fprintf(stderr, "exact-autotrace: filename = %s\n", filename);
+    }
     exact_autotrace(filename);
+    if (exact_autotrace_verbose) {
+        fprintf(stderr, "exact-autotrace: done\n"); fflush(stderr);
+    }
 }
 
 int exact_autotrace_width = 0;
@@ -137,7 +157,13 @@ void exact_autotrace_run_2() {
 
 void exact_autotrace(char *filename) {
     exact_autotrace_init(filename);
+    if (exact_autotrace_verbose) {
+        fprintf(stderr, "exact-autotrace: %s, %d x %d\n", filename, exact_autotrace_width, exact_autotrace_height);
+    }
     exact_autotrace_collect();
     exact_autotrace_run_2();
     exact_autotrace_cleanup();
+    if (exact_autotrace_verbose) {
+        fprintf(stderr, "exact-autotrace: done\n");
+    }
 }
