@@ -125,6 +125,14 @@ void exact_autotrace_init(char *filename) {
         perror("fread on data");
         exit(1);
     }
+    if (getenv("EXACT_AUTOTRACE_DEBUG")) {
+        fprintf(stderr, "exact_autotrace_init: width = %d\n", (int)exact_autotrace_width);
+        fprintf(stderr, "                      height = %d\n", (int)exact_autotrace_height);
+        fprintf(stderr, "                      number of colors = %d\n", (int)dibinfo.ncolors);
+        fprintf(stderr, "                      bits per pixel = %d\n", (int)dibinfo.bitspp);
+        fprintf(stderr, "                      row size = %d\n", (int)rowsize);
+        fprintf(stderr, "                      data size = %d\n", (int)datasize);
+    }
 }
 
 void exact_autotrace_cleanup() {
